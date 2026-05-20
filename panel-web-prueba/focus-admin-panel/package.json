@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "npm run set-env && ng serve",
-    "build": "npx ng build --configuration production",
+    "build": "npm run set-env && npx ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:focus-admin-panel": "node dist/focus-admin-panel/server/server.mjs",

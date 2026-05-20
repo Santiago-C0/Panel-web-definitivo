@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "npm run set-env && ng serve",
-    "build": "npm run set-env && ng build",
+    "build": "npm run set-env && npx ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:focus-admin-panel": "node dist/focus-admin-panel/server/server.mjs",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@angular/build": "^21.2.10",
-    "@angular/cli": "^21.2.10",
+    "@angular/cli": "^21.2.11",
     "@angular/compiler-cli": "^21.2.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",

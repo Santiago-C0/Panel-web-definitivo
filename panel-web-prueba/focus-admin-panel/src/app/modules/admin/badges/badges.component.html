@@ -1,0 +1,188 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Badges / Emblemas</h1>
+      <p class="page-sub">Configura las insignias que se otorgan al cerrar un ciclo de ranking</p>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">+ Nuevo badge</button>
+  </header>
+
+  <div class="loading-rows" *ngIf="loading()">
+    <div class="loading-row" *ngFor="let i of [1,2,3]"></div>
+  </div>
+
+  <div class="error-banner" *ngIf="error()">
+    <span>⚠</span> {{ error() }}
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading() && !error()">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Badge</th>
+          <th>Descripción</th>
+          <th>Rango posiciones</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="badges().length === 0">
+          <td colspan="4" class="empty-row">No hay badges configurados.</td>
+        </tr>
+        <tr *ngFor="let badge of badges()">
+          <td>
+            <div class="badge-cell">
+              <div class="badge-img" *ngIf="badge.image_url">
+                <img [src]="badge.image_url" [alt]="badge.name" />
+              </div>
+              <div class="badge-placeholder" *ngIf="!badge.image_url">✦</div>
+              <span class="badge-name">{{ badge.name }}</span>
+            </div>
+          </td>
+          <td class="text-muted">{{ badge.description }}</td>
+          <td>
+            <span class="range-chip">
+              {{ badge.min_position === badge.max_position
+                ? 'Posición ' + badge.min_position
+                : 'Posiciones ' + badge.min_position + ' – ' + badge.max_position }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="btn-action btn-recipients" (click)="openRecipients(badge)">Ver destinatarios</button>
+              <button class="btn-action btn-edit" (click)="openEdit(badge)">Editar</button>
+              <button class="btn-action btn-delete" (click)="openDelete(badge)">Eliminar</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal-backdrop"
+     *ngIf="modalMode() === 'create' || modalMode() === 'edit'"
+     (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalMode() === 'create' ? 'Nuevo badge' : 'Editar badge' }}</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="form.name" placeholder="Ej: Oro" />
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input type="text" [(ngModel)]="form.description" placeholder="Ej: Top 1 del ciclo" />
+      </div>
+      <div class="field">
+        <label>URL de imagen (opcional)</label>
+        <input type="text" [(ngModel)]="form.image_url" placeholder="https://..." />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Posición mínima</label>
+          <input type="number" [(ngModel)]="form.min_position" min="1" />
+        </div>
+        <div class="field">
+          <label>Posición máxima</label>
+          <input type="number" [(ngModel)]="form.max_position" min="1" />
+        </div>
+      </div>
+      <div class="overlap-warn"
+           *ngIf="form.min_position && form.max_position && hasOverlap(selectedBadge()?.id_badge)">
+        ⚠ Este rango se solapa con un badge existente. El sistema usará el primero que coincida.
+      </div>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-primary" (click)="submitForm()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Guardar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'delete'" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-danger">
+      <span class="modal-icon">⚠</span>
+      <h3>Eliminar badge</h3>
+    </div>
+    <div class="modal-body">
+      <p>¿Eliminar el badge <strong>{{ selectedBadge()?.name }}</strong>?</p>
+      <p class="modal-warning">No se puede eliminar si ya fue otorgado a algún usuario.</p>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-danger" (click)="confirmDelete()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Sí, eliminar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESTINATARIOS -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'recipients'" (click)="closeModal()">
+  <div class="modal modal-wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Destinatarios — {{ selectedBadge()?.name }}</h3>
+    </div>
+    <div class="modal-body modal-body-table">
+
+      <div class="loading-rows" *ngIf="loadingRecipients()">
+        <div class="loading-row" *ngFor="let i of [1,2,3]"></div>
+      </div>
+
+      <div class="error-banner" *ngIf="errorRecipients()">
+        <span>⚠</span> {{ errorRecipients() }}
+      </div>
+
+      <table class="data-table" *ngIf="!loadingRecipients() && !errorRecipients()">
+        <thead>
+          <tr>
+            <th>ID usuario</th>
+            <th>Posición obtenida</th>
+            <th>Inicio ciclo</th>
+            <th>Fin ciclo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="recipients().length === 0">
+            <td colspan="4" class="empty-row">Este badge aún no ha sido otorgado.</td>
+          </tr>
+          <tr *ngFor="let r of recipients()">
+            <td class="text-muted">#{{ r.id_user }}</td>
+            <td>
+              <span class="position"
+                    [class.gold]="r.position_obtained === 1"
+                    [class.silver]="r.position_obtained === 2"
+                    [class.bronze]="r.position_obtained === 3">
+                {{ r.position_obtained }}
+              </span>
+            </td>
+            <td class="text-muted">{{ formatDate(r.cycle_start_date) }}</td>
+            <td class="text-muted">{{ formatDate(r.cycle_end_date) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination"
+           *ngIf="!loadingRecipients() && !errorRecipients() && (recipientsPage() > 1 || hasMoreRecipients())">
+        <button class="btn-page" (click)="prevRecipientsPage()" [disabled]="recipientsPage() === 1">← Anterior</button>
+        <span class="page-info">Página {{ recipientsPage() }}</span>
+        <button class="btn-page" (click)="nextRecipientsPage()" [disabled]="!hasMoreRecipients()">Siguiente →</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm btn-confirm-primary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>

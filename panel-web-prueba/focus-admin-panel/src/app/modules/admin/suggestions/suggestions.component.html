@@ -1,0 +1,142 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Sugerencias</h1>
+      <p class="page-sub">Revisa y aprueba o rechaza las sugerencias de los usuarios</p>
+    </div>
+  </header>
+
+  <!-- FILTROS -->
+  <div class="toolbar">
+    <div class="filter-group">
+      <label>Estado</label>
+      <select [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
+        <option value="">Todos</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="aprobada">Aprobada</option>
+        <option value="rechazada">Rechazada</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Tipo</label>
+      <select [(ngModel)]="selectedType" (ngModelChange)="onFilterChange()">
+        <option value="">Todos</option>
+        <option value="tarea">Plantilla de tarea</option>
+        <option value="categoria">Categoría</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="loading-rows" *ngIf="loading()">
+    <div class="loading-row" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <div class="error-banner" *ngIf="error()">
+    <span>⚠</span> {{ error() }}
+  </div>
+
+  <div class="table-wrap" *ngIf="!loading() && !error()">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID usuario</th>
+          <th>Tipo</th>
+          <th>Contenido</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="suggestions().length === 0">
+          <td colspan="6" class="empty-row">No hay sugerencias para mostrar.</td>
+        </tr>
+        <tr *ngFor="let s of suggestions()">
+          <td class="text-muted">#{{ s.id_user }}</td>
+          <td>
+            <span class="type-chip" [class.type-tarea]="s.type === 'tarea'" [class.type-cat]="s.type === 'categoria'">
+              {{ typeLabel(s.type) }}
+            </span>
+          </td>
+          <td class="content-cell">{{ s.content }}</td>
+          <td class="text-muted">{{ formatDate(s.date) }}</td>
+          <td>
+            <span class="status-badge"
+                  [class.status-pending]="s.status === 'pendiente'"
+                  [class.status-approved]="s.status === 'aprobada'"
+                  [class.status-rejected]="s.status === 'rechazada'">
+              {{ statusLabel(s.status) }}
+            </span>
+          </td>
+          <td>
+            <button class="btn-action btn-detail" (click)="openDetail(s)">
+              {{ s.status === 'pendiente' ? 'Revisar' : 'Ver detalle' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="!loading() && !error() && (currentPage() > 1 || hasMore())">
+    <button class="btn-page" (click)="prevPage()" [disabled]="currentPage() === 1">← Anterior</button>
+    <span class="page-info">Página {{ currentPage() }}</span>
+    <button class="btn-page" (click)="nextPage()" [disabled]="!hasMore()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- MODAL DETALLE / REVISIÓN -->
+<div class="modal-backdrop" *ngIf="modalSuggestion()" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <ng-container *ngIf="modalSuggestion() as s">
+      <div class="modal-header">
+        <h3>Sugerencia #{{ s.id_suggestion }}</h3>
+        <span class="status-badge"
+              [class.status-pending]="s.status === 'pendiente'"
+              [class.status-approved]="s.status === 'aprobada'"
+              [class.status-rejected]="s.status === 'rechazada'">
+          {{ statusLabel(s.status) }}
+        </span>
+      </div>
+      <div class="modal-body">
+        <div class="detail-row">
+          <span class="detail-label">Usuario</span>
+          <span class="detail-value">#{{ s.id_user }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tipo</span>
+          <span class="detail-value">{{ typeLabel(s.type) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Fecha</span>
+          <span class="detail-value">{{ formatDate(s.date) }}</span>
+        </div>
+        <div class="detail-row" *ngIf="s.id_admin">
+          <span class="detail-label">Revisado por admin</span>
+          <span class="detail-value">#{{ s.id_admin }}</span>
+        </div>
+        <div class="content-box">
+          <span class="detail-label">Contenido</span>
+          <p class="content-text">{{ s.content }}</p>
+        </div>
+        <div class="reviewed-notice" *ngIf="s.status !== 'pendiente'">
+          ✓ Esta sugerencia ya fue revisada. El estado no puede modificarse.
+        </div>
+        <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cerrar</button>
+        <ng-container *ngIf="s.status === 'pendiente'">
+          <button class="btn-confirm btn-confirm-reject" (click)="review('rechazada')" [disabled]="modalLoading()">
+            <span *ngIf="!modalLoading()">Rechazar</span>
+            <span *ngIf="modalLoading()" class="spinner"></span>
+          </button>
+          <button class="btn-confirm btn-confirm-approve" (click)="review('aprobada')" [disabled]="modalLoading()">
+            <span *ngIf="!modalLoading()">Aprobar</span>
+            <span *ngIf="modalLoading()" class="spinner"></span>
+          </button>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+</div>

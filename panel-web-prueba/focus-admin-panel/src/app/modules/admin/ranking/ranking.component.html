@@ -1,0 +1,248 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Ranking y ciclos</h1>
+      <p class="page-sub">Gestión del sistema de puntos y competencia</p>
+    </div>
+  </header>
+
+  <!-- CICLO ACTIVO BANNER -->
+  <div class="cycle-banner" [class.active]="!noCycle()" [class.inactive]="noCycle()">
+    <div class="cycle-dot"></div>
+    <ng-container *ngIf="!loadingCycle()">
+      <ng-container *ngIf="!noCycle() && activeCycle() as c">
+        <span>Ciclo <strong>#{{ c.id_cycle }}</strong> activo</span>
+        <span class="cycle-dates">{{ formatDate(c.start_date) }} → {{ formatDate(c.end_date) }}</span>
+        <button class="btn-close-cycle" (click)="openCloseModal()">Cerrar ciclo ⚠</button>
+      </ng-container>
+      <ng-container *ngIf="noCycle()">
+        <span>No hay ciclo de ranking activo</span>
+        <button class="btn-create-cycle" (click)="openCreateModal()">+ Crear ciclo</button>
+      </ng-container>
+    </ng-container>
+    <span *ngIf="loadingCycle()" class="cycle-loading">Cargando...</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab() === 'current'" (click)="setTab('current')">Ranking actual</button>
+    <button class="tab" [class.active]="activeTab() === 'history'" (click)="setTab('history'); loadHistory(true)">Historial</button>
+    <button class="tab" [class.active]="activeTab() === 'cycles'"  (click)="setTab('cycles')">Todos los ciclos</button>
+  </div>
+
+  <!-- ══ TAB: RANKING ACTUAL ══ -->
+  <div *ngIf="activeTab() === 'current'">
+    <div class="loading-rows" *ngIf="loadingGlobal()">
+      <div class="loading-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+    <div class="error-banner" *ngIf="errorGlobal()"><span>⚠</span> {{ errorGlobal() }}</div>
+
+    <div class="table-wrap" *ngIf="!loadingGlobal() && !errorGlobal()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Usuario</th>
+            <th>Foints temporada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="globalRanking().length === 0">
+            <td colspan="3" class="empty-row">Ningún usuario tiene foints en este ciclo aún.</td>
+          </tr>
+          <tr *ngFor="let entry of globalRanking()">
+            <td>
+              <span class="position" [class.gold]="entry.position === 1" [class.silver]="entry.position === 2" [class.bronze]="entry.position === 3">
+                {{ entry.position }}
+              </span>
+            </td>
+            <td>
+              <div class="user-cell">
+                <div class="avatar">{{ entry.name[0] }}{{ entry.lastname[0] }}</div>
+                <div>
+                  <div class="user-name">{{ entry.name }} {{ entry.lastname }}</div>
+                  <div class="user-username">&#64;{{ entry.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="foints-chip">✦ {{ entry.foints_season | number }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="!loadingGlobal() && (globalPage() > 1 || hasMoreGlobal())">
+      <button class="btn-page" (click)="globalPrevPage()" [disabled]="globalPage() === 1">← Anterior</button>
+      <span class="page-info">Página {{ globalPage() }}</span>
+      <button class="btn-page" (click)="globalNextPage()" [disabled]="!hasMoreGlobal()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB: HISTORIAL ══ -->
+  <div *ngIf="activeTab() === 'history'">
+    <div class="filter-row">
+      <button class="tab-sm" [class.active]="selectedCycleId() === null" (click)="filterHistByCycle(null)">Todos los ciclos</button>
+      <button
+        class="tab-sm"
+        *ngFor="let c of cycles()"
+        [class.active]="selectedCycleId() === c.id_cycle"
+        (click)="filterHistByCycle(c.id_cycle)"
+      >Ciclo #{{ c.id_cycle }}</button>
+    </div>
+
+    <div class="loading-rows" *ngIf="loadingHistory()">
+      <div class="loading-row" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="error-banner" *ngIf="errorHistory()"><span>⚠</span> {{ errorHistory() }}</div>
+
+    <div class="table-wrap" *ngIf="!loadingHistory() && !errorHistory()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Posición</th>
+            <th>ID usuario</th>
+            <th>Ciclo</th>
+            <th>Foints del ciclo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="history().length === 0">
+            <td colspan="4" class="empty-row">No hay historial para mostrar. Selecciona un ciclo.</td>
+          </tr>
+          <tr *ngFor="let h of history()">
+            <td>
+              <span class="position" [class.gold]="h.global_position === 1" [class.silver]="h.global_position === 2" [class.bronze]="h.global_position === 3">
+                {{ h.global_position }}
+              </span>
+            </td>
+            <td class="text-muted">#{{ h.id_user }}</td>
+            <td class="text-muted">Ciclo #{{ h.id_cycle }}</td>
+            <td><span class="foints-chip">✦ {{ h.foints_cycle | number }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" *ngIf="!loadingHistory() && (histPage() > 1 || hasMoreHist())">
+      <button class="btn-page" (click)="histPrevPage()" [disabled]="histPage() === 1">← Anterior</button>
+      <span class="page-info">Página {{ histPage() }}</span>
+      <button class="btn-page" (click)="histNextPage()" [disabled]="!hasMoreHist()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- ══ TAB: TODOS LOS CICLOS ══ -->
+  <div *ngIf="activeTab() === 'cycles'">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th>Cerrado el</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="cycles().length === 0">
+            <td colspan="5" class="empty-row">No hay ciclos registrados.</td>
+          </tr>
+          <tr *ngFor="let c of cycles()">
+            <td class="text-muted">#{{ c.id_cycle }}</td>
+            <td class="text-muted">{{ formatDate(c.start_date) }}</td>
+            <td class="text-muted">{{ formatDate(c.end_date) }}</td>
+            <td>
+              <span class="badge" [class.badge-active]="!c.closed" [class.badge-closed]="c.closed">
+                {{ c.closed ? 'Cerrado' : 'Activo' }}
+              </span>
+            </td>
+            <td class="text-muted">{{ c.closed_at ? formatDateTime(c.closed_at) : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CERRAR CICLO ══ -->
+<div class="modal-backdrop" *ngIf="showCloseModal()" (click)="closeCloseModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <ng-container *ngIf="!closeResult()">
+      <div class="modal-header modal-header-danger">
+        <span class="modal-icon">⚠</span>
+        <h3>Cerrar ciclo de ranking</h3>
+      </div>
+      <div class="modal-body">
+        <p>Esta acción es <strong>irreversible</strong>. Al cerrar el ciclo:</p>
+        <ul class="warning-list">
+          <li>Se guardará el ranking final en el historial.</li>
+          <li>Se otorgarán badges a los usuarios del top.</li>
+          <li><strong>Los foints de temporada de TODOS los usuarios se resetearán a 0.</strong></li>
+          <li>El ciclo quedará cerrado permanentemente.</li>
+        </ul>
+        <div class="error-banner" *ngIf="closeError()"><span>⚠</span> {{ closeError() }}</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeCloseModal()" [disabled]="closeLoading()">Cancelar</button>
+        <button class="btn-confirm btn-confirm-danger" (click)="confirmCloseCycle()" [disabled]="closeLoading()">
+          <span *ngIf="!closeLoading()">Sí, cerrar ciclo</span>
+          <span *ngIf="closeLoading()" class="spinner"></span>
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- RESULTADO -->
+    <ng-container *ngIf="closeResult() as r">
+      <div class="modal-header">
+        <span class="modal-icon success-icon">✓</span>
+        <h3>Ciclo cerrado correctamente</h3>
+      </div>
+      <div class="modal-body">
+        <div class="result-grid">
+          <div class="result-item">
+            <span class="result-label">Ciclo</span>
+            <span class="result-value">#{{ r.id_cycle }}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Usuarios rankeados</span>
+            <span class="result-value">{{ r.total_usuarios_rankeados }}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Badges otorgados</span>
+            <span class="result-value">{{ r.badges_otorgados }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-confirm btn-confirm-primary" (click)="closeCloseModal()">Cerrar</button>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- ══ MODAL: CREAR CICLO ══ -->
+<div class="modal-backdrop" *ngIf="showCreateModal()" (click)="closeCreateModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Crear nuevo ciclo</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Fecha de inicio</label>
+        <input type="datetime-local" [(ngModel)]="createForm.start_date" />
+      </div>
+      <div class="field">
+        <label>Fecha de fin</label>
+        <input type="datetime-local" [(ngModel)]="createForm.end_date" />
+      </div>
+      <div class="error-banner" *ngIf="createError()"><span>⚠</span> {{ createError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeCreateModal()" [disabled]="createLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-primary" (click)="confirmCreateCycle()" [disabled]="createLoading()">
+        <span *ngIf="!createLoading()">Crear ciclo</span>
+        <span *ngIf="createLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

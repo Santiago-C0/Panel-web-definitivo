@@ -1,0 +1,146 @@
+<div class="page">
+
+  <!-- BACK -->
+  <button class="btn-back" (click)="goBack()">← Volver a usuarios</button>
+
+  <!-- LOADING USER -->
+  <div class="loading-card" *ngIf="loadingUser()"></div>
+
+  <!-- ERROR USER -->
+  <div class="error-banner" *ngIf="errorUser()">
+    <span>⚠</span> {{ errorUser() }}
+  </div>
+
+  <!-- FICHA DE USUARIO -->
+  <ng-container *ngIf="!loadingUser() && !errorUser() && user() as u">
+
+    <div class="profile-card">
+      <div class="profile-left">
+        <div class="profile-avatar">{{ u.name[0] }}{{ u.lastname[0] }}</div>
+        <div class="profile-info">
+          <h2 class="profile-name">{{ u.name }} {{ u.lastname }}</h2>
+          <p class="profile-username">&#64;{{ u.username }}</p>
+          <span class="badge" [class.badge-active]="u.active" [class.badge-banned]="!u.active">
+            {{ u.active ? 'Activo' : 'Baneado' }}
+          </span>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-ban" *ngIf="u.active"   (click)="openModal('ban')">⊘ Banear</button>
+        <button class="btn-unban" *ngIf="!u.active" (click)="openModal('unban')">◎ Desbanear</button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">Email</span>
+        <span class="detail-value">{{ u.email }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Teléfono</span>
+        <span class="detail-value">{{ u.phone ?? '—' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Foints temporada</span>
+        <span class="detail-value accent">{{ u.foints_season | number }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Foints total</span>
+        <span class="detail-value accent">{{ u.foints_total | number }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Registro</span>
+        <span class="detail-value">{{ formatDateShort(u.created_at) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">ID usuario</span>
+        <span class="detail-value muted">#{{ u.id_user }}</span>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- ACTIVIDAD FOINTS -->
+  <section class="section" *ngIf="!loadingUser() && !errorUser()">
+    <h3 class="section-title">Historial de actividad Foints</h3>
+
+    <div class="loading-rows" *ngIf="loadingAct()">
+      <div class="loading-row" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+
+    <div class="error-banner" *ngIf="errorAct()">
+      <span>⚠</span> {{ errorAct() }}
+    </div>
+
+    <div class="table-wrap" *ngIf="!loadingAct() && !errorAct()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Tarea</th>
+            <th>Programada</th>
+            <th>Completada</th>
+            <th>Foints ganados</th>
+            <th>ID plantilla</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="activity().length === 0">
+            <td colspan="5" class="empty-row">Sin actividad registrada.</td>
+          </tr>
+          <tr *ngFor="let act of activity()">
+            <td class="task-name">{{ act.task_name }}</td>
+            <td class="text-muted">{{ formatDate(act.scheduled_date) }}</td>
+            <td class="text-muted">{{ formatDate(act.completed_at) }}</td>
+            <td>
+              <span class="foints-chip">✦ {{ act.foints_earned }}</span>
+            </td>
+            <td class="text-muted">#{{ act.id_task_template }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN ACTIVIDAD CORREGIDA CON () -->
+    <div class="pagination" *ngIf="!loadingAct() && !errorAct() && (actPage() > 1 || hasMoreAct())">
+      <button class="btn-page" (click)="prevActPage()" [disabled]="actPage() === 1">← Anterior</button>
+      <span class="page-info">Página {{ actPage() }}</span>
+      <button class="btn-page" (click)="nextActPage()" [disabled]="!hasMoreAct()">Siguiente →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" *ngIf="modalAction()" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header" [class.modal-header-ban]="modalAction()==='ban'" [class.modal-header-unban]="modalAction()==='unban'">
+      <span class="modal-icon">{{ modalAction() === 'ban' ? '⊘' : '◎' }}</span>
+      <h3>{{ modalAction() === 'ban' ? 'Banear usuario' : 'Desbanear usuario' }}</h3>
+    </div>
+    <div class="modal-body">
+      <p *ngIf="modalAction()==='ban'">
+        ¿Confirmas que quieres banear a <strong>{{ user()?.name }} {{ user()?.lastname }}</strong>?
+        Perderá acceso a la aplicación.
+      </p>
+      <p *ngIf="modalAction()==='unban'">
+        ¿Confirmas que quieres restaurar el acceso de <strong>{{ user()?.name }} {{ user()?.lastname }}</strong>?
+      </p>
+      <div class="error-banner" *ngIf="actionError()">
+        <span>⚠</span> {{ actionError() }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button
+        class="btn-confirm"
+        [class.btn-confirm-ban]="modalAction()==='ban'"
+        [class.btn-confirm-unban]="modalAction()==='unban'"
+        (click)="confirmAction()"
+        [disabled]="modalLoading()"
+      >
+        <span *ngIf="!modalLoading()">{{ modalAction() === 'ban' ? 'Sí, banear' : 'Sí, desbanear' }}</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

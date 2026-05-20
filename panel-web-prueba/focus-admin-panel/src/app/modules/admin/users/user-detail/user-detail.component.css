@@ -1,0 +1,474 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:host {
+  display: block;
+}
+
+/* ── PAGE ───────────────────────────────────── */
+.page {
+  font-family: 'DM Sans', sans-serif;
+  color: #f1f5f9;
+  padding: 36px 40px;
+}
+
+/* BUTTON BACK */
+.btn-back {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  display: block;
+  transition: color 0.15s;
+}
+
+.btn-back:hover {
+  color: #f1f5f9;
+}
+
+/* ── PROFILE CARD ───────────────────────────── */
+.profile-card {
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.profile-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.profile-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.profile-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.profile-username {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge-active {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.badge-banned {
+  background: rgba(239,68,68,0.12);
+  color: #fb7185;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+/* ACTIONS */
+.profile-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-ban,
+.btn-unban {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-ban:hover,
+.btn-unban:hover {
+  opacity: 0.8;
+}
+
+.btn-ban {
+  background: rgba(239,68,68,0.12);
+  color: #fb7185;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.btn-unban {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+/* ── DETAIL GRID ───────────────────────────── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.detail-item {
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.detail-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.detail-value.accent {
+  font-family: 'Syne', sans-serif;
+  color: #a78bfa;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.detail-value.muted {
+  color: #64748b;
+}
+
+/* ── SECTION ───────────────────────────── */
+.section {
+  margin-top: 8px;
+}
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  letter-spacing: -0.2px;
+}
+
+/* ── TABLE ───────────────────────────── */
+.table-wrap {
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead tr {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.data-table th {
+  text-align: left;
+  padding: 13px 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.1s;
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.data-table td {
+  padding: 13px 18px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.task-name {
+  color: #f1f5f9;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.text-muted {
+  color: #64748b;
+}
+
+.foints-chip {
+  background: rgba(167,139,250,0.12);
+  color: #a78bfa;
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.empty-row {
+  text-align: center;
+  color: #64748b;
+  padding: 40px !important;
+}
+
+/* ── PAGINATION ───────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.page-info {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.btn-page {
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f1f5f9;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-page:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── LOADING ───────────────────────────── */
+.loading-card {
+  height: 120px;
+  border-radius: 14px;
+  background: #0e1118;
+  margin-bottom: 16px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.loading-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.loading-row {
+  height: 48px;
+  border-radius: 10px;
+  background: #0e1118;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── ERROR ───────────────────────────── */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #fca5a5;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── MODAL ───────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.modal-header .modal-icon {
+  font-size: 20px;
+}
+
+.modal-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-header.modal-header-ban .modal-icon {
+  color: #fb7185;
+}
+
+.modal-header.modal-header-unban .modal-icon {
+  color: #34d399;
+}
+
+.modal-body {
+  padding: 20px 24px;
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.modal-body strong {
+  color: #f1f5f9;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.btn-cancel {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #64748b;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  color: #f1f5f9;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+}
+
+.btn-confirm {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-confirm.btn-confirm-ban {
+  background: #ef4444;
+  color: #fff;
+}
+
+.btn-confirm.btn-confirm-unban {
+  background: #10b981;
+  color: #fff;
+}
+
+/* SPINNER */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

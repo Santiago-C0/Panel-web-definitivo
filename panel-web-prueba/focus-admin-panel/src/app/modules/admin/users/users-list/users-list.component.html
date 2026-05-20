@@ -1,0 +1,145 @@
+<div class="page">
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Usuarios</h1>
+      <p class="page-sub">Gestión y control de cuentas</p>
+    </div>
+  </header>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Buscar por nombre, usuario o email..."
+        [(ngModel)]="searchInput"
+        (keyup.enter)="onSearch()"
+      />
+      <button class="btn-clear" *ngIf="searchInput" (click)="clearSearch()">✕</button>
+      <button class="btn-search" (click)="onSearch()">Buscar</button>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab" [class.active]="selectedFilter === 'all'"     (click)="selectedFilter='all';    onFilterChange()">Todos</button>
+      <button class="tab" [class.active]="selectedFilter === 'active'" (click)="selectedFilter='active'; onFilterChange()">Activos</button>
+      <button class="tab" [class.active]="selectedFilter === 'banned'" (click)="selectedFilter='banned'; onFilterChange()">Baneados</button>
+    </div>
+  </div>
+
+  <!-- ERROR GENERAL -->
+  <div class="error-banner" *ngIf="error()">
+    <span>⚠</span> {{ error() }}
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-rows" *ngIf="loading()">
+    <div class="loading-row" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-wrap" *ngIf="!loading() && !error()">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Foints temporada</th>
+          <th>Foints total</th>
+          <th>Registro</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="users().length === 0">
+          <td colspan="7" class="empty-row">No se encontraron usuarios.</td>
+        </tr>
+        <tr *ngFor="let user of users()">
+          <td>
+            <div class="user-cell">
+              <div class="avatar">{{ user.name[0] }}{{ user.lastname[0] }}</div>
+              <div>
+                <div class="user-fullname">{{ user.name }} {{ user.lastname }}</div>
+                <div class="user-username">&#64;{{ user.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="text-muted">{{ user.email }}</td>
+          <td class="text-num">{{ user.foints_season | number }}</td>
+          <td class="text-num">{{ user.foints_total | number }}</td>
+          <td class="text-muted">{{ formatDate(user.created_at) }}</td>
+          <td>
+            <span class="badge" [class.badge-active]="user.active" [class.badge-banned]="!user.active">
+              {{ user.active ? 'Activo' : 'Baneado' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="btn-action btn-detail" (click)="viewDetail(user.id_user)">
+                Ver detalle
+              </button>
+              <button
+                class="btn-action btn-ban"
+                *ngIf="user.active"
+                (click)="openModal('ban', user)"
+              >Banear</button>
+              <button
+                class="btn-action btn-unban"
+                *ngIf="!user.active"
+                (click)="openModal('unban', user)"
+              >Desbanear</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINACIÓN CON SIGNAL COMPUTADO () -->
+  <div class="pagination" *ngIf="!loading() && !error() && (currentPage() > 1 || hasMore())">
+    <button class="btn-page" (click)="prevPage()" [disabled]="currentPage() === 1">← Anterior</button>
+    <span class="page-info">Página {{ currentPage() }}</span>
+    <button class="btn-page" (click)="nextPage()" [disabled]="!hasMore()">Siguiente →</button>
+  </div>
+
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal-backdrop" *ngIf="modalAction()" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header" [class.modal-header-ban]="modalAction() === 'ban'" [class.modal-header-unban]="modalAction() === 'unban'">
+      <span class="modal-icon">{{ modalAction() === 'ban' ? '⊘' : '◎' }}</span>
+      <h3>{{ modalAction() === 'ban' ? 'Banear usuario' : 'Desbanear usuario' }}</h3>
+    </div>
+    <div class="modal-body">
+      <p *ngIf="modalAction() === 'ban'">
+        ¿Estás seguro de que quieres banear a
+        <strong>{{ modalUser()?.name }} {{ modalUser()?.lastname }}</strong>?
+        El usuario perderá acceso a la aplicación.
+      </p>
+      <p *ngIf="modalAction() === 'unban'">
+        ¿Quieres restaurar el acceso de
+        <strong>{{ modalUser()?.name }} {{ modalUser()?.lastname }}</strong>?
+      </p>
+      <div class="error-banner" *ngIf="actionError()">
+        <span>⚠</span> {{ actionError() }}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button
+        class="btn-confirm"
+        [class.btn-confirm-ban]="modalAction() === 'ban'"
+        [class.btn-confirm-unban]="modalAction() === 'unban'"
+        (click)="confirmAction()"
+        [disabled]="modalLoading()"
+      >
+        <span *ngIf="!modalLoading()">{{ modalAction() === 'ban' ? 'Sí, banear' : 'Sí, desbanear' }}</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

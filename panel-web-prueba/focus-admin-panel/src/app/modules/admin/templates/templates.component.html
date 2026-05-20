@@ -1,0 +1,227 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Plantillas de tareas</h1>
+      <p class="page-sub">Gestión de categorías y plantillas</p>
+    </div>
+  </header>
+
+  <!-- ══ CATEGORÍAS ══ -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Categorías</h2>
+      <button class="btn-primary" (click)="openCreateCategory()">+ Nueva categoría</button>
+    </div>
+
+    <div class="loading-rows" *ngIf="loadingCats()">
+      <div class="loading-row" *ngFor="let i of [1,2,3]"></div>
+    </div>
+    <div class="error-banner" *ngIf="errorCats()"><span>⚠</span> {{ errorCats() }}</div>
+
+    <div class="table-wrap" *ngIf="!loadingCats() && !errorCats()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="categories().length === 0">
+            <td colspan="3" class="empty-row">No hay categorías creadas.</td>
+          </tr>
+          <tr *ngFor="let cat of categories()">
+            <td class="cell-name">{{ cat.category_name }}</td>
+            <td class="text-muted">{{ cat.category_description }}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-action btn-edit" (click)="openEditCategory(cat)">Editar</button>
+                <button class="btn-action btn-delete" (click)="openDeleteCategory(cat)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ PLANTILLAS ══ -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Plantillas</h2>
+      <button class="btn-primary" (click)="openCreateTemplate()">+ Nueva plantilla</button>
+    </div>
+
+    <!-- FILTRO POR CATEGORÍA -->
+    <div class="filter-row">
+      <button class="tab" [class.active]="selectedCategoryId() === null" (click)="filterByCategory(null)">Todas</button>
+      <button
+        class="tab"
+        *ngFor="let cat of categories()"
+        [class.active]="selectedCategoryId() === cat.id_category"
+        (click)="filterByCategory(cat.id_category)"
+      >{{ cat.category_name }}</button>
+    </div>
+
+    <div class="loading-rows" *ngIf="loadingTpls()">
+      <div class="loading-row" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="error-banner" *ngIf="errorTpls()"><span>⚠</span> {{ errorTpls() }}</div>
+
+    <div class="table-wrap" *ngIf="!loadingTpls() && !errorTpls()">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Foints base</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="templates().length === 0">
+            <td colspan="5" class="empty-row">No hay plantillas en esta categoría.</td>
+          </tr>
+          <tr *ngFor="let tpl of templates()">
+            <td class="cell-name">{{ tpl.name }}</td>
+            <td class="text-muted">{{ getCategoryName(tpl.id_category) }}</td>
+            <td><span class="foints-chip">✦ {{ tpl.foints_base }}</span></td>
+            <td>
+              <span class="badge" [class.badge-active]="tpl.active" [class.badge-inactive]="!tpl.active">
+                {{ tpl.active ? 'Activa' : 'Inactiva' }}
+              </span>
+            </td>
+            <td>
+              <div class="actions">
+                <button class="btn-action btn-edit" (click)="openEditTemplate(tpl)">Editar</button>
+                <button
+                  class="btn-action"
+                  [class.btn-deactivate]="tpl.active"
+                  [class.btn-activate]="!tpl.active"
+                  (click)="toggleActive(tpl)"
+                >{{ tpl.active ? 'Desactivar' : 'Activar' }}</button>
+                <button class="btn-action btn-delete" (click)="openDeleteTemplate(tpl)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- ══ MODALES ══ -->
+
+<!-- CREAR / EDITAR CATEGORÍA -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'create-category' || modalMode() === 'edit-category'" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalMode() === 'create-category' ? 'Nueva categoría' : 'Editar categoría' }}</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="catForm.category_name" placeholder="Ej: Salud" />
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input type="text" [(ngModel)]="catForm.category_description" placeholder="Descripción de la categoría" />
+      </div>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-primary" (click)="submitCategory()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Guardar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CREAR / EDITAR PLANTILLA -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'create-template' || modalMode() === 'edit-template'" (click)="closeModal()">
+  <div class="modal modal-wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalMode() === 'create-template' ? 'Nueva plantilla' : 'Editar plantilla' }}</h3>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Categoría</label>
+        <select [(ngModel)]="tplForm.id_category">
+          <option *ngFor="let cat of categories()" [value]="cat.id_category">{{ cat.category_name }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="tplForm.name" placeholder="Ej: Correr 5km" />
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input type="text" [(ngModel)]="tplForm.description" placeholder="Descripción de la tarea" />
+      </div>
+      <div class="field">
+        <label>Foints base</label>
+        <input type="number" [(ngModel)]="tplForm.foints_base" min="1" placeholder="100" />
+      </div>
+      <div class="field field-row">
+        <label>Activa</label>
+        <input type="checkbox" [(ngModel)]="tplForm.active" />
+      </div>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-primary" (click)="submitTemplate()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Guardar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ELIMINAR CATEGORÍA -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'delete-category'" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-danger">
+      <span class="modal-icon">⚠</span>
+      <h3>Eliminar categoría</h3>
+    </div>
+    <div class="modal-body">
+      <p>¿Eliminar la categoría <strong>{{ $any(selectedItem())?.category_name }}</strong>?</p>
+      <p class="modal-warning">No se puede eliminar si tiene plantillas asociadas.</p>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-danger" (click)="confirmDeleteCategory()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Sí, eliminar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ELIMINAR PLANTILLA -->
+<div class="modal-backdrop" *ngIf="modalMode() === 'delete-template'" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-danger">
+      <span class="modal-icon">⚠</span>
+      <h3>Eliminar plantilla</h3>
+    </div>
+    <div class="modal-body">
+      <p>¿Eliminar la plantilla <strong>{{ $any(selectedItem())?.name }}</strong>?</p>
+      <p class="modal-warning">Si tiene tareas asociadas, la API devolverá un error. En ese caso, desactívala en lugar de eliminarla.</p>
+      <div class="error-banner" *ngIf="modalError()"><span>⚠</span> {{ modalError() }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()" [disabled]="modalLoading()">Cancelar</button>
+      <button class="btn-confirm btn-confirm-danger" (click)="confirmDeleteTemplate()" [disabled]="modalLoading()">
+        <span *ngIf="!modalLoading()">Sí, eliminar</span>
+        <span *ngIf="modalLoading()" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>

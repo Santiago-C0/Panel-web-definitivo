@@ -1,0 +1,354 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:host {
+  display: block;
+}
+
+/* ── BASE COLORS (reemplazo de variables SCSS) ── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #07080d;
+  font-family: 'DM Sans', sans-serif;
+  color: #f1f5f9;
+}
+
+/* ── SIDEBAR ──────────────────────────────────── */
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: #0e1118;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand .brand-icon {
+  font-size: 20px;
+  color: #818cf8;
+}
+
+.sidebar-brand .brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.sidebar-brand .brand-name strong {
+  color: #818cf8;
+  font-weight: 800;
+}
+
+/* NAV */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-item .nav-icon {
+  font-size: 15px;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-item:hover {
+  color: #f1f5f9;
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-item.active {
+  color: #818cf8;
+  background: rgba(129,140,248,0.1);
+}
+
+/* FOOTER */
+.sidebar-footer {
+  padding: 20px 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.btn-logout {
+  width: 100%;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-logout:hover {
+  background: rgba(239,68,68,0.2);
+}
+
+/* ── MAIN ─────────────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 36px 40px;
+  overflow-y: auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.page-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* BUTTON */
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #94a3b8;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-refresh span {
+  font-size: 16px;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  color: #f1f5f9;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* SPIN */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* CYCLE BANNER */
+.cycle-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.cycle-banner .cycle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cycle-banner.active {
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #6ee7b7;
+}
+
+.cycle-banner.active .cycle-dot {
+  background: #10b981;
+}
+
+.cycle-banner.inactive {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #fca5a5;
+}
+
+.cycle-banner.inactive .cycle-dot {
+  background: #ef4444;
+}
+
+/* ── CARDS ────────────────────────────────────── */
+.section {
+  margin-bottom: 32px;
+}
+
+.section-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+}
+
+.cards-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 180px;
+  background: #0e1118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ACCENTS */
+.accent-indigo .card-icon,
+.accent-indigo .card-value {
+  color: #818cf8;
+}
+
+.accent-emerald .card-icon,
+.accent-emerald .card-value {
+  color: #34d399;
+}
+
+.accent-emerald .progress-fill {
+  background: #10b981;
+}
+
+/* (resto de acentos equivalente expandido) */
+
+/* LOADING */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pulse-card {
+  flex: 1;
+  height: 130px;
+  border-radius: 14px;
+  background: #0e1118;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ERROR */
+.error-state {
+  text-align: center;
+  padding: 60px;
+}
+
+.error-state .error-icon {
+  font-size: 40px;
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+.error-state p {
+  color: #64748b;
+}
+
+.error-state button {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+.error-state button:hover {
+  background: rgba(255,255,255,0.1);
+}

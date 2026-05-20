@@ -1,14 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { StatsService, AdminStats } from '../../../core/services/stats.service';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -17,11 +14,7 @@ export class DashboardComponent implements OnInit {
   loading = signal(true);
   error = signal('');
 
-  constructor(
-    private statsService: StatsService,
-    public auth: AuthService,
-    private router: Router
-  ) {}
+  constructor(private statsService: StatsService) {}
 
   ngOnInit() {
     this.loadStats();
@@ -29,6 +22,7 @@ export class DashboardComponent implements OnInit {
 
   loadStats() {
     this.loading.set(true);
+    this.error.set('');
     this.statsService.getStats().subscribe({
       next: data => {
         this.stats.set(data);
@@ -39,13 +33,5 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       }
     });
-  }
-
-  logout() {
-    this.auth.logout();
-  }
-
-  get user() {
-    return this.auth.getUser();
   }
 }

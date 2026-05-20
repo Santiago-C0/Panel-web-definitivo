@@ -1,0 +1,48 @@
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">◈</span>
+      <span class="brand-name">Focus<strong>Admin</strong></span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active">
+        <span class="nav-icon">◇</span> Dashboard
+      </a>
+      <a class="nav-item" routerLink="/admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+        <span class="nav-icon">◎</span> Usuarios
+      </a>
+      <a class="nav-item" routerLink="/admin/templates" routerLinkActive="active">
+        <span class="nav-icon">⊞</span> Plantillas
+      </a>
+      <a class="nav-item" routerLink="/admin/ranking" routerLinkActive="active">
+        <span class="nav-icon">✦</span> Ranking
+      </a>
+      <a class="nav-item" routerLink="/admin/badges" routerLinkActive="active">
+        <span class="nav-icon">◈</span> Emblemas
+      </a>
+      <a class="nav-item" routerLink="/admin/suggestions" routerLinkActive="active">
+        <span class="nav-icon">◑</span> Sugerencias
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" *ngIf="user">
+        <div class="user-avatar">{{ user.name[0] }}{{ user.lastname[0] }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ user.name }} {{ user.lastname }}</span>
+          <span class="user-role">Administrador</span>
+        </div>
+      </div>
+      <button class="btn-logout" (click)="logout()">Salir</button>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="main">
+    <router-outlet />
+  </main>
+
+</div>

@@ -1,164 +1,132 @@
-<div class="layout">
+<div class="dashboard-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Estadísticas generales del sistema</p>
+    </div>
+    <button class="btn-refresh" (click)="loadStats()" [disabled]="loading()">
+      <span [class.spinning]="loading()">↻</span>
+      Actualizar
+    </button>
+  </header>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <span class="brand-icon">◈</span>
-      <span class="brand-name">Focus<strong>Admin</strong></span>
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="pulse-row">
+      <div class="pulse-card" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="pulse-row">
+      <div class="pulse-card wide" *ngFor="let i of [1,2]"></div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-state" *ngIf="!loading() && error()">
+    <span class="error-icon">⚠</span>
+    <p>{{ error() }}</p>
+    <button (click)="loadStats()">Reintentar</button>
+  </div>
+
+  <!-- STATS -->
+  <ng-container *ngIf="!loading() && !error() && stats() as s">
+
+    <!-- CICLO BANNER -->
+    <div class="cycle-banner" [class.active]="s.ciclo_activo" [class.inactive]="!s.ciclo_activo">
+      <div class="cycle-dot"></div>
+      <ng-container *ngIf="s.ciclo_activo">
+        <span>Ciclo de ranking activo</span>
+        <strong>· Ciclo #{{ s.id_ciclo_activo }}</strong>
+      </ng-container>
+      <ng-container *ngIf="!s.ciclo_activo">
+        <span>⚠ No hay ciclo de ranking activo</span>
+      </ng-container>
     </div>
 
-    <nav class="sidebar-nav">
-      <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
-      <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">Usuarios</a>
-      <a class="nav-item" routerLink="/admin/templates" routerLinkActive="active">Plantillas</a>
-      <a class="nav-item" routerLink="/admin/ranking" routerLinkActive="active">Ranking</a>
-      <a class="nav-item" routerLink="/admin/badges" routerLinkActive="active">Emblemas</a>
-      <a class="nav-item" routerLink="/admin/suggestions" routerLinkActive="active">Sugerencias</a>
-    </nav>
+    <!-- USERS ROW -->
+    <section class="section">
+      <h2 class="section-label">Usuarios</h2>
+      <div class="cards-row">
+        <div class="stat-card accent-indigo">
+          <div class="card-top">
+            <span class="card-icon">◎</span>
+            <span class="card-tag">Activos</span>
+          </div>
+          <div class="card-value">{{ s.usuarios_activos | number }}</div>
+          <div class="card-desc">Usuarios activos en el sistema</div>
+        </div>
 
-    <div class="sidebar-footer">
-      <div class="user-chip" *ngIf="user">
-        <div class="user-avatar">{{ user.name[0] }}{{ user.lastname[0] }}</div>
-        <div class="user-info">
-          <span class="user-name">{{ user.name }} {{ user.lastname }}</span>
-          <span class="user-role">Administrador</span>
+        <div class="stat-card accent-rose">
+          <div class="card-top">
+            <span class="card-icon">⊘</span>
+            <span class="card-tag">Baneados</span>
+          </div>
+          <div class="card-value">{{ s.usuarios_baneados | number }}</div>
+          <div class="card-desc">Cuentas suspendidas</div>
         </div>
       </div>
-      <button class="btn-logout" (click)="logout()">Salir</button>
-    </div>
-  </aside>
+    </section>
 
-  <!-- MAIN -->
-  <main class="main">
-    <header class="page-header">
-      <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-sub">Estadísticas generales del sistema</p>
-      </div>
-      <button class="btn-refresh" (click)="loadStats()" [disabled]="loading()">
-        <span [class.spinning]="loading()">↻</span>
-        Actualizar
-      </button>
-    </header>
-
-    <!-- LOADING -->
-    <div class="loading-state" *ngIf="loading()">
-      <div class="pulse-row">
-        <div class="pulse-card" *ngFor="let i of [1,2,3,4]"></div>
-      </div>
-      <div class="pulse-row">
-        <div class="pulse-card wide" *ngFor="let i of [1,2]"></div>
-      </div>
-    </div>
-
-    <!-- ERROR -->
-    <div class="error-state" *ngIf="!loading() && error()">
-      <span class="error-icon">⚠</span>
-      <p>{{ error() }}</p>
-      <button (click)="loadStats()">Reintentar</button>
-    </div>
-
-    <!-- STATS -->
-    <ng-container *ngIf="!loading() && !error() && stats() as s">
-
-      <!-- CICLO BANNER -->
-      <div class="cycle-banner" [class.active]="s.ciclo_activo" [class.inactive]="!s.ciclo_activo">
-        <div class="cycle-dot"></div>
-        <ng-container *ngIf="s.ciclo_activo">
-          <span>Ciclo de ranking activo</span>
-          <strong>· Ciclo #{{ s.id_ciclo_activo }}</strong>
-        </ng-container>
-        <ng-container *ngIf="!s.ciclo_activo">
-          <span>⚠ No hay ciclo de ranking activo</span>
-        </ng-container>
-      </div>
-
-      <!-- USERS ROW -->
-      <section class="section">
-        <h2 class="section-label">Usuarios</h2>
-        <div class="cards-row">
-          <div class="stat-card accent-indigo">
-            <div class="card-top">
-              <span class="card-icon">◎</span>
-              <span class="card-tag">Activos</span>
-            </div>
-            <div class="card-value">{{ s.usuarios_activos | number }}</div>
-            <div class="card-desc">Usuarios activos en el sistema</div>
+    <!-- TASKS ROW -->
+    <section class="section">
+      <h2 class="section-label">Tareas</h2>
+      <div class="cards-row">
+        <div class="stat-card accent-sky">
+          <div class="card-top">
+            <span class="card-icon">◇</span>
+            <span class="card-tag">Total</span>
           </div>
+          <div class="card-value">{{ s.tareas_totales | number }}</div>
+          <div class="card-desc">Tareas registradas en total</div>
+        </div>
 
-          <div class="stat-card accent-rose">
-            <div class="card-top">
-              <span class="card-icon">⊘</span>
-              <span class="card-tag">Baneados</span>
+        <div class="stat-card accent-emerald">
+          <div class="card-top">
+            <span class="card-icon">✓</span>
+            <span class="card-tag">Completadas</span>
+          </div>
+          <div class="card-value">{{ s.tareas_completadas | number }}</div>
+          <div class="card-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="(s.tareas_completadas / s.tareas_totales) * 100"></div>
             </div>
-            <div class="card-value">{{ s.usuarios_baneados | number }}</div>
-            <div class="card-desc">Cuentas suspendidas</div>
+            <span>{{ ((s.tareas_completadas / s.tareas_totales) * 100) | number:'1.0-1' }}%</span>
           </div>
         </div>
-      </section>
 
-      <!-- TASKS ROW -->
-      <section class="section">
-        <h2 class="section-label">Tareas</h2>
-        <div class="cards-row">
-          <div class="stat-card accent-sky">
-            <div class="card-top">
-              <span class="card-icon">◇</span>
-              <span class="card-tag">Total</span>
-            </div>
-            <div class="card-value">{{ s.tareas_totales | number }}</div>
-            <div class="card-desc">Tareas registradas en total</div>
+        <div class="stat-card accent-amber">
+          <div class="card-top">
+            <span class="card-icon">◑</span>
+            <span class="card-tag">Hoy</span>
           </div>
-
-          <div class="stat-card accent-emerald">
-            <div class="card-top">
-              <span class="card-icon">✓</span>
-              <span class="card-tag">Completadas</span>
-            </div>
-            <div class="card-value">{{ s.tareas_completadas | number }}</div>
-            <div class="card-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="(s.tareas_completadas / s.tareas_totales) * 100"></div>
-              </div>
-              <span>{{ ((s.tareas_completadas / s.tareas_totales) * 100) | number:'1.0-1' }}%</span>
-            </div>
-          </div>
-
-          <div class="stat-card accent-amber">
-            <div class="card-top">
-              <span class="card-icon">◑</span>
-              <span class="card-tag">Hoy</span>
-            </div>
-            <div class="card-value">{{ s.tareas_completadas_hoy | number }}</div>
-            <div class="card-desc">Tareas completadas hoy</div>
-          </div>
+          <div class="card-value">{{ s.tareas_completadas_hoy | number }}</div>
+          <div class="card-desc">Tareas completadas hoy</div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- FOINTS ROW -->
-      <section class="section">
-        <h2 class="section-label">Foints</h2>
-        <div class="cards-row">
-          <div class="stat-card accent-violet">
-            <div class="card-top">
-              <span class="card-icon">✦</span>
-              <span class="card-tag">Total histórico</span>
-            </div>
-            <div class="card-value">{{ s.foints_distribuidos_total | number }}</div>
-            <div class="card-desc">Foints distribuidos desde el inicio</div>
+    <!-- FOINTS ROW -->
+    <section class="section">
+      <h2 class="section-label">Foints</h2>
+      <div class="cards-row">
+        <div class="stat-card accent-violet">
+          <div class="card-top">
+            <span class="card-icon">✦</span>
+            <span class="card-tag">Total histórico</span>
           </div>
-
-          <div class="stat-card accent-cyan">
-            <div class="card-top">
-              <span class="card-icon">◈</span>
-              <span class="card-tag">Ciclo actual</span>
-            </div>
-            <div class="card-value">{{ s.foints_distribuidos_ciclo_actual | number }}</div>
-            <div class="card-desc">Foints del ciclo en curso</div>
-          </div>
+          <div class="card-value">{{ s.foints_distribuidos_total | number }}</div>
+          <div class="card-desc">Foints distribuidos desde el inicio</div>
         </div>
-      </section>
 
-    </ng-container>
-  </main>
+        <div class="stat-card accent-cyan">
+          <div class="card-top">
+            <span class="card-icon">◈</span>
+            <span class="card-tag">Ciclo actual</span>
+          </div>
+          <div class="card-value">{{ s.foints_distribuidos_ciclo_actual | number }}</div>
+          <div class="card-desc">Foints del ciclo en curso</div>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
 </div>

@@ -105,7 +105,7 @@ export class UsersListComponent implements OnInit {
   }
 
   viewDetail(id: number) {
-    this.router.navigate(['/users', id]);
+    this.router.navigate(['/admin/users', id]);
   }
 
   openModal(action: 'ban' | 'unban', user: UserSummary) {

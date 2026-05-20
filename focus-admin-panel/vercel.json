@@ -1,0 +1,7 @@
+{
+  "buildCommand": "npm run set-env && npx ng build --configuration production",
+  "outputDirectory": "dist/focus-admin-panel/browser",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
